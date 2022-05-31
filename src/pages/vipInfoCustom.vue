@@ -6,7 +6,7 @@
       left-arrow
       @click-left="onClickLeft"
     />
-    <div class="main">
+    <div class="main" v-if="isShowResult == 1">
 
       <div class="dis_setting_icon_d">
         <div class="s_center_t_d">感谢您使用VIP上门检测服务</div>
@@ -60,12 +60,6 @@
           </div>
           <div class="search-list-role-from-g" style="border-bottom: none">
             <div class="s_center_t_item_g" >详细地址</div>
-            <!-- <el-input
-  type="textarea"
-  autosize
-  placeholder="请输入内容"
-  v-model="address">
-</el-input> -->
             <van-field
               v-model="address"
               rows="1"
@@ -74,15 +68,6 @@
               type="textarea"
               placeholder="请填写详细地址"
             />
-            <!-- <div class="select-item input-item">
-                    <input
-                      v-model="vip_phone"
-                      type="textarea"
-                      name="vip_phone"
-                      placeholder="请填写详细地址"
-                      maxlength="50"
-                    />
-                  </div> -->
           </div>
         </div>
       </div>
@@ -95,8 +80,8 @@
             style="margin-right: 4px; color: #e27a62"
           />
         </div>
-        <div class="s_center_t" style="color: #e27a62">
-          温馨提示：上门区域限北京四环内及部分四环外，如图
+        <div class="s_center_t" style="color: #e27a62" @click.stop="clickPDF">
+          温馨提示：上门区域限北京四环内及部分四环外，<span style="text-decoration-line: underline;">点击查看</span>
         </div>
       </div>
 
@@ -128,14 +113,17 @@
       </div>
 
       <div class="dis_setting_icon">
+        <!-- <div class="s_setting_t" style="color: #e27a62">
+          <van-checkbox v-model="checkedStatus" checked-color="#ee0a24">已阅读并同意<span style="text-decoration-line: underline;">预约须知</span></van-checkbox>
+        </div> -->
+
         <div class="s_setting_t" style="color: #e27a62">
-          <van-icon
-            name="info-o"
-            size="20"
-            style="margin-right: 4px; color: #e27a62"
-          />
+         <van-checkbox v-model="checkedStatus" checked-color="#ee0a24"></van-checkbox>
         </div>
-        <div class="s_center_t">已阅读并同意预约须知</div>
+        <div class="s_center_t" style="color: #e27a62" @click.stop="clickYYXZPDF">
+          已阅读并同意<span style="text-decoration-line: underline;">预约须知</span>
+        </div>
+
       </div>
 
       <div class="empty_view"></div>
@@ -145,20 +133,48 @@
       </div>
     </div>
 
-    <van-dialog
-      v-model="isShowCheckbox"
-      showCancelButton
-      :beforeClose="beforeCloseCheckbox"
-      confirmButtonColor='#E06596'
-    >
-    <div class="dialog_item">
-        <van-checkbox-group v-model="result"  direction="horizontal">
-          <div v-for="(item,index) in nurse_list" :key="index" class="checkbox_class">
-          <van-checkbox :name="item.person_name">{{item.person_name}}</van-checkbox>
-          </div>
-        </van-checkbox-group>
+    <div class="main" v-if="isShowResult == 2">
+
+      <div class="dis_setting_icon_dd" style="color:#E06596;">
+        <div class="s_center_t_d">提交成功</div>
+      </div>
+
+<div class="search-list-role">
+  <div
+            v-for="(item, index) in resultInfo"
+            :key="index">
+      <div class="search-result-view">
+              <div class="dis_setting" style="padding: 0px;">
+                <div class="s_center_t_item">{{ '预约信息' }}</div>
+              </div>
+              <div class="search-result-view-item" v-if="item.vip_person">
+                <div class="search-result-view-left">联系人</div>
+                <div class="search-result-view-right">{{item.vip_person}}</div>
+              </div>
+              <div class="search-result-view-item" v-if="item.vip_phone">
+                <div class="search-result-view-left">手机号</div>
+                <div class="search-result-view-right">{{item.vip_phone}}</div>
+              </div>
+              <div class="search-result-view-item" v-if="item.address" style="positon:relative;">
+                <div class="search-result-view-left">上门地址</div>
+                <div class="search-result-view-right" style="width: 70%;">{{item.province}}{{item.city}}{{item.area}}{{item.address}}</div>
+              </div>
+              <div class="search-result-view-item" v-if="item.text">
+                <div class="search-result-view-left">检测类型</div>
+                <div class="search-result-view-right">{{item.text}}</div>
+              </div>
+              <div class="search-result-view-item" v-if="item.expect_date">
+                <div class="search-result-view-left">预约时间</div>
+                <div class="search-result-view-right">{{item.expect_date}} {{item.expect_time_bucket}}</div>
+              </div>
+              <div class="search-result-view-item" v-if="item.inspection_person_num">
+                <div class="search-result-view-left">受检人数</div>
+                <div class="search-result-view-right">{{item.inspection_person_num}}人</div>
+              </div>
+            </div>
+  </div>
+</div>
     </div>
-    </van-dialog>
 
 
     
@@ -171,18 +187,6 @@
       <van-picker show-toolbar title="选择开始时间" :columns="objectMultiArray" @cancel="dateCancel" @confirm="dateConfirm"/>
     </van-popup>
 
-<van-popup v-model="isShowDateTime" round position="bottom">
-     
-     <van-datetime-picker
-  v-model="currentDate"
-  type="datehour"
-  title="选择年月日小时"
-  :min-date="minDate"
-  @cancel="dateTimeCancel" 
-  @confirm="dateTimeConfirm"
-/>
-    </van-popup>
-
 
     <van-dialog
       v-model="isShowUpdate"
@@ -190,11 +194,41 @@
       :beforeClose="beforeUpdate"
       confirmButtonColor='#E06596'
       cancel-button-color='#E06596'
-      confirm-button-text="仍然保存"
-      cancel-button-text="再看看"
+      confirm-button-text="同意并继续"
+      cancel-button-text="返回上一步"
     >
     <div class="dialog_item">
-        <div class="dialog_item_title">负责护士xxx在x月x日xx:00已有上门预约，仍然要保存吗？</div>
+        <div class="dialog_item_text">免责说明</div>
+        <div class="dialog_item_title">
+          <img class="dialog_item_img" :src="disclaimer_img" />
+        </div>
+    </div>
+    </van-dialog>
+
+    <van-dialog
+      v-model="isShowAreaImg"
+      :beforeClose="beforeAraeImg"
+      confirm-button-text="好的,我知道了"
+      theme="round"
+    >
+    <div class="dialog_item">
+        <div class="dialog_item_title">
+          <img class="dialog_item_img" src="../assets/images/area_img.png" />
+        </div>
+    </div>
+    </van-dialog>
+
+    <van-dialog
+      v-model="isShowShouldKnow"
+      :beforeClose="beforeShouldKnow"
+      confirm-button-text="好的,我知道了"
+      theme="round"
+    >
+    <div class="dialog_item">
+        <div class="dialog_item_text">预约须知</div>
+        <div class="dialog_item_title">
+          <img class="dialog_item_img" src="../assets/images/should_know.png" />
+        </div>
     </div>
     </van-dialog>
 
@@ -207,8 +241,9 @@ import {
   Button,
   Dialog,
 } from "vant";
-import { getVIPInfoByNum,getNurseInfo,updateVIPOrderStatus } from "../request/api";
+import { createCustomerAddressInfo,getVIPInfoByNum,getVIPServiceType } from "../request/api";
 import { areaList } from '@vant/area-data';
+
 export default {
   name: "",
   components: {
@@ -217,9 +252,10 @@ export default {
   },
   data() {
     return {
-      roleId: "",
-      roleName: "",
-      userId: "",
+      isShowShouldKnow: false,
+      isShowAreaImg: false,
+      isShowResult: 1,
+      resultInfo: [],
       appointment_vip_num:'',
       inspection_person_num: 1,
       remark: "",
@@ -228,116 +264,139 @@ export default {
       province: "",
       city: "",
       area: "",
-      address_id: '',
-      appointment_vip_status: -1,
       expect_date: "",
       expect_time_bucket: "",
-      nurse_name_list: "",
+
       text: "",
       service_type: "",
       service_status: "",
       address: "",
-      special_expect_date: "",
-      special_expect_time_bucket: "",
-      company_name: "",
       provincecityarea: "",
-      statustext: "等待确认",
       statuvalue: '0',
       showPopover: false,
-      // 通过 actions 属性来定义菜单选项
-      actions: [
-        { text: '等待确认', value: '0' },
-        { text: '待采样', value: '1' },
-        { text: '已完成', value: '2' },
-        { text: '客户缺席', value: '3' },
-      ],
-      isShowCheckbox: false,
-      result: [],
-      resultCheckbox: "",
-      nurse_list:[],
+      
       isShowArea: false,
       areaList,
-      objectMultiArray: [
-                          {
-                              "text": "05月27日",
-                              "children": [
-                                  {
-                                      "text": "上午",
-                                      disabled: true
-                                  },
-                                  {
-                                      "text": "下午"
-                                  },
+      objectMultiArray:[],
+      // objectMultiArray: [
+      //                     {
+      //                         "text": "05月31日",
+      //                         "children": [
+      //                             {
+      //                                 "text": "11:00",
+      //                                 disabled: true
+      //                             },
+      //                             {
+      //                                 "text": "12:00",
+      //                             },
+      //                             {
+      //                                 "text": "13:00",
+      //                             },
+      //                             {
+      //                                 "text": "14:00",
+      //                             },
+      //                             {
+      //                                 "text": "15:00",
+      //                             },
   
-                              ]
-                          },
-                          {
-                              "text": "05月28日",
-                              "children": [
-                                  {
-                                      "text": "上午"
-                                  },
-                                  {
-                                      "text": "下午"
-                                  },
+      //                         ]
+      //                     },
+      //                     {
+      //                         "text": "06月01日",
+      //                         "children": [
+      //                             {
+      //                                 "text": "11:00"
+      //                             },
+      //                             {
+      //                                 "text": "12:00",
+      //                             },
+      //                             {
+      //                                 "text": "13:00",
+      //                             },
+      //                             {
+      //                                 "text": "14:00",
+      //                             },
+      //                             {
+      //                                 "text": "15:00",
+      //                             },
   
-                              ]
-                          },
+      //                         ]
+                                
+      //                     },
                          
-                          {
-                              "text": "05月29日",
-                              "children": [
-                                  {
-                                      "text": "上午"
-                                  },
-                                  {
-                                      "text": "下午"
-                                  },
+      //                     {
+      //                         "text": "06月01日",
+      //                         "children": [
+      //                             {
+      //                                 "text": "11:00",
+                                    
+      //                             },
+      //                             {
+      //                                 "text": "12:00",
+      //                             },
+      //                             {
+      //                                 "text": "13:00",
+      //                             },
+      //                             {
+      //                                 "text": "14:00",
+      //                             },
+      //                             {
+      //                                 "text": "15:00",
+      //                             },
   
-                              ]
-                          },
-                          {
-                              "text": "05月30日",
-                              "children": [
-                                  {
-                                      disabled: true,
-                                      "text": "上午"
-                                  },
-                                  {
-                                      "text": "下午"
-                                  },
-  
-                              ]
-                          }
-                      ],
+      //                         ]
+      //                     },
+                          
+      //                 ],
       isShowDate: false,
       dateText: '',
-      isShowDateTime: false,
-      minDate: new Date(),
-      currentDate: new Date(),
-      timeValue: '',
-      isShowUpdate: false
+      isShowUpdate: false,
+      checkedStatus: false,
+      area_img: '', //地图参数
+      disclaimer_img: '', //免责声明
+      should_know: '', //预约须知
     };
   },
-  activated() {
-    this.roleId = this.$route.query.id;
-    this.roleName = this.$route.query.name;
-    this.userId = this.$route.query.userId;
+  created() {
     this.appointment_vip_num = this.$route.query.avipnum;
-    console.log(this.roleId);
-    console.log(this.roleName);
-    console.log(this.userId);
-    console.log(this.appointment_vip_num);
-    this.getVIPInfoByNum();
-    this.getNurseInfo();
   },
-  mounted() {},
+  mounted() {
+    this.getVIPInfoByNum();
+
+    this.getVIPServiceType();
+  },
   methods: {
-    getNurseInfo(){
+    getVIPServiceType(){
       let that = this;
-      getNurseInfo({}).then((res) => {
+      getVIPServiceType({}).then((res) => {
         if (res.data.success) {
-          that.nurse_list = res.data.result;
+          let service_type_info = res.data.service_type_info;
+          that.objectMultiArray = service_type_info[0].objectMultiArray;
+          // that.area_img = service_type_info[0].area_img; //地图参数
+          that.disclaimer_img = service_type_info[0].disclaimer_img; //免责声明
+          // that.should_know = service_type_info[0].should_know; //预约须知
+
+          if(that.objectMultiArray.length > 0){
+            let objList = [];
+            for (let i = 0; i < that.objectMultiArray.length; i++) {
+              let obj = {};
+              obj.text =  that.objectMultiArray[i].date;
+              obj.children =  [];
+              let item = that.objectMultiArray[i].time;
+              for (let j = 0; j < item.length; j++) {
+                let timelist = item[j];
+                let objTime = {};
+                objTime.text = timelist.time_section;
+                if(timelist.can_use == 1){
+                  objTime.disabled = true;
+                }
+                obj.children.push(objTime)
+              }
+              objList.push(obj);
+            }
+
+            that.objectMultiArray = objList;
+          }
         } else {
             Toast(res.data.msg)
         }
@@ -352,70 +411,10 @@ export default {
           let result = res.data.result
           if(result && result.length > 0){
             let item = result[0];
-
-             that.appointment_vip_num = item.appointment_vip_num;
-             if(item.inspection_person_num){
-                that.inspection_person_num = item.inspection_person_num;
-             }
-             
-             that.remark = item.remark;
-             that.vip_person = item.vip_person;
-             that.vip_phone = item.vip_phone;
-             that.province = item.province;
-             that.city = item.city;
-             that.area = item.area;
-             that.address_id = item.address_id;
-             that.appointment_vip_status = item.appointment_vip_status;
-             that.expect_date = item.expect_date;
-             that.expect_time_bucket = item.expect_time_bucket;
-             that.nurse_name_list = item.nurse_name_list;
-             that.text = item.text;
-             that.service_type = item.service_type;
-             that.service_status = item.service_status;
-             that.address = item.address;
-
-             if(item.special_expect_date){
-                that.special_expect_date = item.special_expect_date;
-             }
-
-             if(item.special_expect_time_bucket){
-                that.special_expect_time_bucket = item.special_expect_time_bucket;
-             }
-
-             if(item.company_name){
-                that.company_name = item.company_name;
-             }
-
-             if(that.province && that.city && that.area){
-                that.provincecityarea = that.province + that.city + that.area + '';
-             }
-
-             if(that.expect_date && that.expect_time_bucket){
-               that.dateText = that.expect_date + ' ' + that.expect_time_bucket;
-             }
-
-             if(that.special_expect_date && that.special_expect_time_bucket){
-               that.timeValue = that.special_expect_date + ' ' + that.special_expect_time_bucket;
-             }
-
-             
-             if(that.appointment_vip_status == -1 || that.appointment_vip_status == 0){
-                that.statustext = "等待确认";
-                that.statuvalue = 0;
-             } else if(that.appointment_vip_status == 1){
-                that.statustext = "待采样";
-                that.statuvalue = 1;
-             } else if(that.appointment_vip_status == 2){
-                that.statustext = "已完成";
-                that.statuvalue = 2;
-             } else if(that.appointment_vip_status == 3){
-                that.statustext = "客户缺席";
-                that.statuvalue = 3;
-             }
-
-             if(that.nurse_name_list){
-               that.resultCheckbox = that.nurse_name_list;
-             }
+            if(item.vip_person && item.vip_phone && item.text && item.province && item.city && item.address && item.expect_date && item.inspection_person_num){
+              that.isShowResult = 2;
+              that.resultInfo.push(result[0]);
+            }
           }
         } else {
             Toast(res.data.msg)
@@ -425,24 +424,46 @@ export default {
     onClickLeft() {
       this.$router.back();
     },
-    beforeUpdate(){
+    beforeUpdate(action, done) {
+      let that = this;
+      if(action === 'confirm') {
+        let param = {
+          appointment_vip_num: that.appointment_vip_num,
+          vip_person: that.vip_person,
+          vip_phone: that.vip_phone,
+          province: that.province,
+          city: that.city,
+          area: that.area,
+          address: that.address,
+          expect_date: that.expect_date,
+          expect_time_bucket: that.expect_time_bucket,
+          inspection_person_num: that.inspection_person_num
+        }
 
+        console.log('--params-->:',param)
+
+        createCustomerAddressInfo(param).then((res) => {
+          if (res.data.success) {
+            that.isShowUpdate = false;
+            that.isShowResult = 2;
+            that.getVIPInfoByNum();
+            done() //关闭
+          } else {
+            that.isShowUpdate = false;
+            Toast(res.data.msg);
+            done(false) //关闭
+          }
+        });
+      } else if(action === 'cancel') {
+        this.isShowUpdate = false;
+        done() //关闭
+      }
     },
     /**
      * 保存
      */
     clickSubmit() {
       let that = this;
-
-      if(that.statuvalue != 0 && that.resultCheckbox == ''){
-        Toast('非等待确认状态，请选择负责护士');
-        return;
-      }
-
-      if(that.remark == ''){
-        Toast('请写下客户购买的渠道，如美团/京东等');
-        return;
-      }
 
       if(that.vip_person == ''){
         Toast('请输入联系人姓名');
@@ -469,68 +490,19 @@ export default {
         return;
       }
 
-      let param = {
-        appointment_vip_num: that.appointment_vip_num,
-        appointment_vip_status: that.statuvalue,
-        nurse_name_list: that.resultCheckbox,
-        remark: that.remark,
-        address_id: that.address_id,
-        vip_person: that.vip_person,
-        vip_phone: that.vip_phone,
-        province: that.province,
-        city: that.city,
-        area: that.area,
-        address: that.address,
-        expect_date: that.expect_date,
-        expect_time_bucket: that.expect_time_bucket,
-        special_expect_date: that.special_expect_date,
-        special_expect_time_bucket: that.special_expect_time_bucket,
-        inspection_person_num: that.inspection_person_num
+      if(that.checkedStatus == false){
+        Toast('请阅读并勾选预约须知');
+        return;
       }
 
-      console.log('--params-->:',param)
-
-      updateVIPOrderStatus(param).then((res) => {
-        if (res.data.success) {
-          that.isShowUpdate = true;
-        } else {
-            Toast(res.data.msg)
-        }
-      });
+      that.isShowUpdate = true;
 
     },
     clearPhone() {
       this.vip_phone = "";
     },
-    onSelect(action) {
-      Toast(action.text);
-      this.statustext = action.text;
-      this.statuvalue = action.value;
-    },
-    clickHushi(){
-      this.isShowCheckbox = true;
-    },
-    beforeCloseCheckbox(action, done) {
-      let that = this;
-      if(action === 'confirm') {
-        if(that.result.length > 0){
-          this.isShowCheckbox = false;
-          console.log(that.result)
-          let resultCheckbox = '';
-          resultCheckbox= that.result.join(",");
-          that.result=[];
-          that.resultCheckbox = resultCheckbox;
-          done()
-        }else{
-          Toast('请选择负责护士');
-          done(false)
-        }
-      } else if(action === 'cancel') {
-        this.isShowCheckbox = false;
-        this.result=[];
-        done() //关闭
-      }
-    },
+    
+    
     clickArea(){
       this.isShowArea = true;
     },
@@ -571,38 +543,35 @@ export default {
         this.isShowDate = false;
       }
     },
-    clickDateTime(){
-      this.isShowDateTime = true;
+    clickPDF() {
+      this.isShowAreaImg = true;
+      // this.$router.push({
+      //   path: "/instrumentPDF"
+      // });
+      // return;
     },
-    dateTimeCancel(){
-      this.isShowDateTime = false;
+    beforeAraeImg(action, done){
+      this.isShowAreaImg = false;
+      done();
     },
-    dateTimeConfirm(){
-      this.timeValue = this.timeFormat(this.currentDate);
-      console.log(this.timeValue)
-      this.isShowDateTime = false;
+    clickYYXZPDF() {
+      this.isShowShouldKnow = true;
+      // this.$router.push({
+      //   path: "/instrumentPDF"
+      // });
+      // return;
     },
-    timeFormat(time) { // 时间格式化 2019-09-08
-     let year = time.getFullYear();
-     let month = time.getMonth() + 1;
-      if(month<10){
-        month = '0'+month;
-      }
-     let day = time.getDate();
-     let hour = time.getHours();
-
-     this.special_expect_date = month + '月' + day + '日';
-      this.special_expect_time_bucket = hour + ':00';
-
-     return month + '月' + day + '日' + ' ' + hour + ':00';
-     }
+    beforeShouldKnow(action, done){
+      this.isShowShouldKnow = false;
+      done();
+    },
   },
 };
 </script>
 <style scoped lang="scss">
 .child-section {
   background-color: #f5f5f5;
-  // height: 100%;
+  height: 100%;
 }
 .icon_logo {
   width: 40px;
@@ -665,6 +634,14 @@ export default {
   padding: 50px 30px 30px 30px;
 }
 
+.dis_setting_icon_dd{
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  padding: 80px 30px 50px 30px;
+}
+
 .s_center_t_d{
   font-size: 40px;
 }
@@ -712,6 +689,38 @@ export default {
   // background-color: #FFFFFF;
   width: 100%;
   padding: 0px 30px;
+
+     .search-result-view {
+      display: flex;
+      //   align-items: center;
+      // justify-content: space-between;
+      padding: 30px 30px;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  margin-top: 30px;
+  flex-direction: column;
+
+
+  .search-result-view-item{
+    width: 100%;
+      display: flex;
+    // justify-content: space-between;
+    // align-items: center;
+    padding: 10px 0px;
+  
+
+.search-result-view-left{
+  width: 25%;
+  font-size: 30px;
+  color: #999999;
+}
+
+.search-result-view-right{
+  width: 75%;
+  font-size: 30px;
+}
+  }
+     }
 }
 
 .empty_view {
@@ -833,10 +842,24 @@ export default {
 
 .dialog_item{
       display: flex;
-      // align-items: center;
-      // justify-content: center;
+      align-items: center;
+      justify-content: center;
       flex-direction: column;
       padding: 20px;
+    }
+
+    .dialog_item_text{
+      font-size: 32px;
+      padding: 20px;
+    }
+
+    .dialog_item_title{
+      overflow-y: scroll;
+      height: 800px;
+    }
+
+    .dialog_item_img{
+      width: 100%;
     }
 
 .checkbox_class{

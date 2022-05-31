@@ -197,7 +197,7 @@
     <div class="dialog_item">
         <van-checkbox-group v-model="result"  direction="horizontal">
           <div v-for="(item,index) in nurse_list" :key="index" class="checkbox_class">
-          <van-checkbox :name="item.person_name">{{item.person_name}}</van-checkbox>
+          <van-checkbox :name="item.id">{{item.person_name}}</van-checkbox>
           </div>
         </van-checkbox-group>
     </div>
@@ -237,7 +237,7 @@
       cancel-button-text="再看看"
     >
     <div class="dialog_item">
-        <div class="dialog_item_title">负责护士xxx在x月x日xx:00已有上门预约，仍然要保存吗？</div>
+        <div class="dialog_item_title">负责护士<span style="color:#E06596;">{{checkinfo.person_name}}</span>在<span style="color:#E06596;">{{checkinfo.expect_date}}{{checkinfo.expect_time_bucket}}</span>已有上门预约，仍然要保存吗？</div>
     </div>
     </van-dialog>
 
@@ -250,7 +250,7 @@ import {
   Button,
   Dialog,
 } from "vant";
-import { getVIPInfoByNum,getNurseInfo,updateVIPOrderStatus } from "../request/api";
+import { getVIPInfoByNum,getNurseInfo,updateVIPOrderStatus,checkVIPAppointmentNurse,getVIPServiceType } from "../request/api";
 import { areaList } from '@vant/area-data';
 export default {
   name: "",
@@ -276,6 +276,7 @@ export default {
       expect_date: "",
       expect_time_bucket: "",
       nurse_name_list: "",
+      nurse_name_ids: "",
       text: "",
       service_type: "",
       service_status: "",
@@ -300,69 +301,88 @@ export default {
       nurse_list:[],
       isShowArea: false,
       areaList,
-      objectMultiArray: [
-                          {
-                              "text": "05月27日",
-                              "children": [
-                                  {
-                                      "text": "上午",
-                                      disabled: true
-                                  },
-                                  {
-                                      "text": "下午"
-                                  },
+      objectMultiArray:[],
+      // objectMultiArray: [
+      //                     {
+      //                         "text": "05月31日",
+      //                         "children": [
+      //                             {
+      //                                 "text": "11:00",
+      //                                 disabled: true
+      //                             },
+      //                             {
+      //                                 "text": "12:00",
+      //                             },
+      //                             {
+      //                                 "text": "13:00",
+      //                             },
+      //                             {
+      //                                 "text": "14:00",
+      //                             },
+      //                             {
+      //                                 "text": "15:00",
+      //                             },
   
-                              ]
-                          },
-                          {
-                              "text": "05月28日",
-                              "children": [
-                                  {
-                                      "text": "上午"
-                                  },
-                                  {
-                                      "text": "下午"
-                                  },
+      //                         ]
+      //                     },
+      //                     {
+      //                         "text": "06月01日",
+      //                         "children": [
+      //                             {
+      //                                 "text": "11:00"
+      //                             },
+      //                             {
+      //                                 "text": "12:00",
+      //                             },
+      //                             {
+      //                                 "text": "13:00",
+      //                             },
+      //                             {
+      //                                 "text": "14:00",
+      //                             },
+      //                             {
+      //                                 "text": "15:00",
+      //                             },
   
-                              ]
-                          },
+      //                         ]
+                                
+      //                     },
                          
-                          {
-                              "text": "05月29日",
-                              "children": [
-                                  {
-                                      "text": "上午"
-                                  },
-                                  {
-                                      "text": "下午"
-                                  },
+      //                     {
+      //                         "text": "06月01日",
+      //                         "children": [
+      //                             {
+      //                                 "text": "11:00",
+                                    
+      //                             },
+      //                             {
+      //                                 "text": "12:00",
+      //                             },
+      //                             {
+      //                                 "text": "13:00",
+      //                             },
+      //                             {
+      //                                 "text": "14:00",
+      //                             },
+      //                             {
+      //                                 "text": "15:00",
+      //                             },
   
-                              ]
-                          },
-                          {
-                              "text": "05月30日",
-                              "children": [
-                                  {
-                                      disabled: true,
-                                      "text": "上午"
-                                  },
-                                  {
-                                      "text": "下午"
-                                  },
-  
-                              ]
-                          }
-                      ],
+      //                         ]
+      //                     },
+                          
+      //                 ],
       isShowDate: false,
       dateText: '',
       isShowDateTime: false,
       minDate: new Date(),
       currentDate: new Date(),
       timeValue: '',
-      isShowUpdate: false
+      isShowUpdate: false,
+      checkinfo: ''
     };
   },
-  activated() {
+  created() {
     this.roleId = this.$route.query.id;
     this.roleName = this.$route.query.name;
     this.userId = this.$route.query.userId;
@@ -371,11 +391,48 @@ export default {
     console.log(this.roleName);
     console.log(this.userId);
     console.log(this.appointment_vip_num);
+    
+  },
+  mounted() {
     this.getVIPInfoByNum();
     this.getNurseInfo();
+
+    this.getVIPServiceType()
   },
-  mounted() {},
   methods: {
+    getVIPServiceType(){
+      let that = this;
+      getVIPServiceType({}).then((res) => {
+        if (res.data.success) {
+          let service_type_info = res.data.service_type_info;
+          that.objectMultiArray = service_type_info[0].objectMultiArray;
+
+          if(that.objectMultiArray.length > 0){
+            let objList = [];
+            for (let i = 0; i < that.objectMultiArray.length; i++) {
+              let obj = {};
+              obj.text =  that.objectMultiArray[i].date;
+              obj.children =  [];
+              let item = that.objectMultiArray[i].time;
+              for (let j = 0; j < item.length; j++) {
+                let timelist = item[j];
+                let objTime = {};
+                objTime.text = timelist.time_section;
+                if(timelist.can_use == 1){
+                  objTime.disabled = true;
+                }
+                obj.children.push(objTime)
+              }
+              objList.push(obj);
+            }
+
+            that.objectMultiArray = objList;
+          }
+        } else {
+            Toast(res.data.msg)
+        }
+      });
+    },
     getNurseInfo(){
       let that = this;
       getNurseInfo({}).then((res) => {
@@ -412,6 +469,7 @@ export default {
              that.expect_date = item.expect_date;
              that.expect_time_bucket = item.expect_time_bucket;
              that.nurse_name_list = item.nurse_name_list;
+             that.nurse_name_ids = item.nurse_name_ids;
              that.text = item.text;
              that.service_type = item.service_type;
              that.service_status = item.service_status;
@@ -468,9 +526,6 @@ export default {
     onClickLeft() {
       this.$router.back();
     },
-    beforeUpdate(){
-
-    },
     /**
      * 保存
      */
@@ -512,10 +567,68 @@ export default {
         return;
       }
 
+      if(that.statuvalue == 0){
+        that.setSaveData();
+      } else {
+        let param = {
+          nurse_name_ids: that.nurse_name_ids,
+          expect_date: that.special_expect_date ?  that.special_expect_date : that.expect_date,
+          expect_time_bucket: that.special_expect_time_bucket ? that.special_expect_time_bucket : that.expect_time_bucket,
+        }
+        checkVIPAppointmentNurse(param).then((res) => {
+          if (res.data.success) {
+            if(res.data.is_alert == 1){
+              that.setSaveData();
+            }else{
+              that.isShowUpdate = true;
+              if(res.data.result && res.data.result.length > 0){
+                that.checkinfo = res.data.result[0];
+              }
+            }
+          } else {
+            Toast(res.data.msg)
+          }
+        });
+      }
+    },
+    setSaveData(){
+      let that = this;
+      let param = {
+          appointment_vip_num: that.appointment_vip_num,
+          appointment_vip_status: that.statuvalue,
+          nurse_name_list: that.resultCheckbox,
+          nurse_name_ids: that.nurse_name_ids,
+          remark: that.remark,
+          address_id: that.address_id,
+          vip_person: that.vip_person,
+          vip_phone: that.vip_phone,
+          province: that.province,
+          city: that.city,
+          area: that.area,
+          address: that.address,
+          expect_date: that.expect_date,
+          expect_time_bucket: that.expect_time_bucket,
+          special_expect_date: that.special_expect_date,
+          special_expect_time_bucket: that.special_expect_time_bucket,
+          inspection_person_num: that.inspection_person_num
+        }
+        console.log('--params-->:',param)
+        updateVIPOrderStatus(param).then((res) => {
+          if (res.data.success) {
+            Toast(res.data.msg);
+            that.onClickLeft();
+          } else {
+            Toast(res.data.msg);
+          }
+        });
+    },
+    beforeUpdate(action, done) {
+      let that = this;
       let param = {
         appointment_vip_num: that.appointment_vip_num,
         appointment_vip_status: that.statuvalue,
         nurse_name_list: that.resultCheckbox,
+        nurse_name_ids: that.nurse_name_ids,
         remark: that.remark,
         address_id: that.address_id,
         vip_person: that.vip_person,
@@ -530,23 +643,29 @@ export default {
         special_expect_time_bucket: that.special_expect_time_bucket,
         inspection_person_num: that.inspection_person_num
       }
-
       console.log('--params-->:',param)
 
-      updateVIPOrderStatus(param).then((res) => {
-        if (res.data.success) {
-          that.isShowUpdate = true;
-        } else {
-            Toast(res.data.msg)
-        }
-      });
-
+      if(action === 'confirm') {
+        updateVIPOrderStatus(param).then((res) => {
+          if (res.data.success) {
+            this.isShowUpdate = false;
+            Toast(res.data.msg);
+            done() //关闭
+            that.onClickLeft();
+          } else {
+            Toast(res.data.msg);
+            done(false) //关闭
+          }
+        });
+      } else if(action === 'cancel') {
+        this.isShowUpdate = false;
+        done() //关闭
+      }
     },
     clearPhone() {
       this.vip_phone = "";
     },
     onSelect(action) {
-      Toast(action.text);
       this.statustext = action.text;
       this.statuvalue = action.value;
     },
@@ -560,7 +679,19 @@ export default {
           this.isShowCheckbox = false;
           console.log(that.result)
           let resultCheckbox = '';
-          resultCheckbox= that.result.join(",");
+
+            let resultText = [];
+            for(let i = 0; i < that.nurse_list.length; i++){
+              let item = that.nurse_list[i];
+              for(let j = 0; j < that.result.length; j++){
+                if(item.id == that.result[j]){
+                  resultText.push(item.person_name)
+                }
+              }
+            }
+
+          resultCheckbox= resultText.join(",");
+          that.nurse_name_ids = that.result.join(",");
           that.result=[];
           that.resultCheckbox = resultCheckbox;
           done()
@@ -869,6 +1000,10 @@ export default {
       flex-direction: column;
       padding: 20px;
     }
+
+.dialog_item_title{
+  padding: 30px;
+}
 
 .checkbox_class{
   padding: 20px;

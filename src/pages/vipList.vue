@@ -20,7 +20,7 @@
       <!-- <div class="item_center" @click.stop="clickPDF">样本箱转运系统使用说明</div> -->
 
       <div class="dis_item_center">
-        <div class="s_center">
+        <div class="s_center_view">
           <van-popover
             v-model="showVipStatus"
             trigger="click"
@@ -42,13 +42,13 @@
           <div class="s_center_t">全部日期</div>
           <i class="el-icon-caret-bottom"></i>
         </div> -->
-        <div class="s_center" @click="cliclDate">
+        <div class="s_center_view" @click="cliclDate">
           <div class="s_center_t">{{sort_status == 0 ? '时间正序' : '时间倒序'}}</div>
           <i class="el-icon-caret-bottom" size="16"></i>
         </div>
       </div>
 
-      <div class="t_center">
+      <!-- <div class="t_center">
         <div class="s_center_t">全部日期：</div>
           <el-date-picker
             v-model="expect_date"
@@ -56,7 +56,7 @@
             placeholder="选择日期"
             @change="changeExpectDate">
           </el-date-picker>
-      </div>
+      </div> -->
 
       <div class="t_center">
         <div class="s_center_t">筛选护士：</div>
@@ -90,9 +90,6 @@
           finished-text="没有更多了"
           @load="onDownLoad"
         >
-
-        <!-- { status:'2',type:'0',,id:5,url:'',}, -->
-        
           <div
             v-for="(item, index) in instrumentList"
             :key="index">
@@ -108,22 +105,22 @@
               </div>
               <div class="search-result-view-item" v-if="item.vip_phone">
                 <div class="search-result-view-left">手机号</div>
-                <div class="search-result-view-right">{{item.vip_phone}}</div>
+                <div class="search-result-view-right" @click="copyVipPhone(item.vip_phone)">{{item.vip_phone}}</div>
               </div>
               <div class="search-result-view-item" v-if="item.address" style="positon:relative;">
                 <div class="search-result-view-left">上门地址</div>
-                <div class="search-result-view-right" style="width: 63%;">{{item.province}}{{item.city}}{{item.area}}{{item.address}}</div>
-                <div class="pic-img-view">
+                <div class="search-result-view-right" style="width: 63%;" @click="copyAddress(item.vip_phone)">{{item.province}}{{item.city}}{{item.area}}{{item.address}}</div>
+                <div class="pic-img-view" @click="markOnAMAP(item)">
                   <img class="pic-img-icon" src="../assets/images/icon_position_red.png" alt="" />
                 </div>
               </div>
-              <div class="search-result-view-item" v-if="item.text">
+              <div class="search-result-view-item" v-if="item.service_title">
                 <div class="search-result-view-left">检测类型</div>
-                <div class="search-result-view-right">{{item.text}}</div>
+                <div class="search-result-view-right">{{item.service_title}}</div>
               </div>
               <div class="search-result-view-item" v-if="item.customer_url">
                 <div class="search-result-view-left">客户录入</div>
-                <div class="search-result-view-right">{{item.customer_url}}</div>
+                <div class="search-result-view-right" @click="copyUrl(item.customer_url,item.appointment_vip_num)">请客户点击下面链接<span style="text-decoration-line: underline;color:blue">{{item.customer_url}}{{'?avipnum='}}{{item.appointment_vip_num}}</span>，填写预约信息。</div>
               </div>
               <div class="search-result-view-item" v-if="item.inspection_person_num">
                 <div class="search-result-view-left">受检人数</div>
@@ -257,10 +254,11 @@ export default {
       isShowDelete: false,
       roleName:'',
       userId: '',
-      appointment_vip_num: ''
+      appointment_vip_num: '',
+      locationMap: ''
     };
   },
-  activated() {
+  created() {
     this.roleId = this.$route.query.id;
     this.roleName = this.$route.query.name;
     this.userId = this.$route.query.userId;
@@ -268,16 +266,54 @@ export default {
     console.log(this.roleName)
     console.log(this.userId)
 
-    this.getNurseInfo();
-
-    this.page = 1;
-    this.instrumentList = [];
-    this.getAllVIPRecords();
+    
   },
   mounted() {
     this.isWechat();
+
+    this.getNurseInfo();
+    this.page = 1;
+    this.instrumentList = [];
+    this.getAllVIPRecords();
+
+    this.initMap();
   },
   methods: {
+    initMap() {
+      let that = this;
+      // var geolocation = new qq.maps.Geolocation(
+      //   'RLWBZ-JD53U-OJHV6-27XHB-I5VKQ-I7F3H',
+      //   "myapp"
+      // );
+      var geolocation = new qq.maps.Geolocation();
+      geolocation.getLocation(
+        postion => {
+          that.locationMap = postion;
+          console.log("定位",postion);
+        },
+        err => {
+          console.log("定位失败");
+        }
+      );
+    },
+    markOnAMAP(item) {
+      let that = this;
+      if(item){
+        let address = item.province+item.city+item.area+item.address+"";
+        this.$jsonp("https://apis.map.qq.com/ws/geocoder/v1/?", {
+          address: `${address}`, // 经纬度
+          key: "RLWBZ-JD53U-OJHV6-27XHB-I5VKQ-I7F3H",
+          output: "jsonp" // output必须jsonp   不然会超时
+        }).then(res => {
+          console.log(res, "腾讯地图");
+          let locations = res.result.location;
+          location.href = `https://apis.map.qq.com/tools/routeplan/eword=${item.address}&epointx=${locations.lat}&epointy=${locations.lng}&spointx=${that.locationMap.lat}&spointy=${that.locationMap.lng}?key=RLWBZ-JD53U-OJHV6-27XHB-I5VKQ-I7F3H&referer=myapp`;
+        });
+      }
+      
+    
+      // location.href = `https://apis.map.qq.com/tools/routeplan/eword=${'丽泽桥丰顺驾校采样站'}&epointx=${'39.86985'}&epointy=${'116.307988'}&spointx=${'39.85856'}&spointy=${'116.28616'}?key=RLWBZ-JD53U-OJHV6-27XHB-I5VKQ-I7F3H&referer=myapp`;
+    },
     getNurseInfo(){
       let that = this;
       getNurseInfo({}).then((res) => {
@@ -436,6 +472,8 @@ export default {
 
       let that = this;
       getAllVIPRecords({
+        page: that.page,
+        limit: that.limit,
         service_type: that.service_type,
         expect_date: that.expect_date,
         nurse_name_list: that.dataValue,
@@ -553,25 +591,71 @@ export default {
     handleSetting(){
       this.$router.push({
         path: "/vipSetting",
-        query:{id: '1',name: '杨青',userId: '45'}
+        query:{id: this.roleId,name: this.roleName,userId: this.userId}
       });
     },
     clickVipInfo(item,index){
       console.log('----.:',item,index);
       let appointment_vip_num = item.appointment_vip_num;
+      // this.$router.push({
+      //       path: "/vipInfoCustom",
+      //       query:{avipnum:appointment_vip_num}
+      //     });
       if(appointment_vip_num){
         if(item.service_type == 0){
           this.$router.push({
             path: "/vipInfo",
-            query:{id: '1',name: '杨青',userId: '45',avipnum:appointment_vip_num}
+            query:{id: this.roleId,name: this.roleName,userId: this.userId,avipnum:appointment_vip_num}
           });
         }else {
           this.$router.push({
             path: "/vipInfoGroup",
-            query:{id: '1',name: '杨青',userId: '45',avipnum:appointment_vip_num}
+            query:{id: this.roleId,name: this.roleName,userId: this.userId,avipnum:appointment_vip_num}
           });
         }
       }
+    },
+    copyVipPhone(item){
+      // 模拟 输入框
+        var cInput = document.createElement("input");
+        cInput.value = item;
+        document.body.appendChild(cInput);
+        cInput.select(); // 选取文本框内容
+        // 执行浏览器复制命令
+        // 复制命令会将当前选中的内容复制到剪切板中（这里就是创建的input标签）
+        // Input要在正常的编辑状态下原生复制方法才会生效
+        document.execCommand("copy");
+        Toast('复制成功')
+        // 复制成功后再将构造的标签 移除
+        document.body.removeChild(cInput);
+    },
+    copyAddress(item){
+        // 模拟 输入框
+        var cInput = document.createElement("input");
+        cInput.value = item;
+        document.body.appendChild(cInput);
+        cInput.select(); // 选取文本框内容
+        // 执行浏览器复制命令
+        // 复制命令会将当前选中的内容复制到剪切板中（这里就是创建的input标签）
+        // Input要在正常的编辑状态下原生复制方法才会生效
+        document.execCommand("copy");
+        Toast('复制成功')
+        // 复制成功后再将构造的标签 移除
+        document.body.removeChild(cInput);
+    },
+    copyUrl(url,vipnum){
+      // 模拟 输入框
+        var cInput = document.createElement("input");
+        cInput.value = url + '?avipnum=' + vipnum;
+        document.body.appendChild(cInput);
+        cInput.select(); // 选取文本框内容
+        // 执行浏览器复制命令
+        // 复制命令会将当前选中的内容复制到剪切板中（这里就是创建的input标签）
+        // Input要在正常的编辑状态下原生复制方法才会生效
+        document.execCommand("copy");
+        Toast('复制成功')
+        // 复制成功后再将构造的标签 移除
+        document.body.removeChild(cInput);
     }
   },
 };
@@ -850,6 +934,14 @@ export default {
   padding: 30px;
   align-items: center;
   justify-content: center;
+}
+
+.s_center_view{
+  display: flex;
+  padding: 10px 30px;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0px;
 }
 
 .s_center_t{

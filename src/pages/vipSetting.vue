@@ -52,7 +52,7 @@ export default {
       appointment_person_num: 1,
     };
   },
-  activated() {
+  created() {
     this.roleId = this.$route.query.id;
     this.roleName = this.$route.query.name;
     this.userId = this.$route.query.userId;

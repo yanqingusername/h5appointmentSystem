@@ -59,7 +59,7 @@ export default {
       isShowWechat: true
     };
   },
-  activated() {},
+  created() {},
   mounted() {
     // this.isWechat();
     // this.getAutoLogin();

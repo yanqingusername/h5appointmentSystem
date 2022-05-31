@@ -25,7 +25,14 @@ import { PullRefresh } from 'vant';
 
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+
+
+import {VueJsonp} from 'vue-jsonp'
+Vue.use(VueJsonp)
+
 Vue.use(ElementUI);
+
+
 
 Vue.prototype.$vconsole = VConsole;
 

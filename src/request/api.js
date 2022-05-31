@@ -20,16 +20,17 @@ export const updateVIPInfoByNum = val => requestH5Other('/vipback/updateVIPAppoi
 
 export const getVIPInfoByNum = val => requestH5Other('/vipback/getVIPAppointmentInfoByNum.hn', val, 'get'); //vip根据预约码appointment_vip_num获取预约信息
 
-
-
+export const checkVIPAppointmentNurse = val => requestH5Other('/vipback/checkVIPAppointmentNurse.hn', val, 'get'); //预约护士检验
 
 export const updateVIPOrderStatus = val => requestH5Other('/vipback/updateVIPAppointmentOrderStatus.hn', val, 'get'); //vip上门后台修改预约订单
 
 export const getNurseInfo = val => requestH5Other('/vipback/getNurseInfo.hn', val, 'get'); //获取护士信息
 
-
-
 export const createCustomerAddressInfo = val => requestH5Other('/vipback/createCustomerAddressInfo.hn', val, 'get'); //vip预约客户填信息
+
+
+export const getVIPServiceType = val => requestH5Other('/avip/getVIPServiceType.hn', val, 'get'); //
+
 
 
 

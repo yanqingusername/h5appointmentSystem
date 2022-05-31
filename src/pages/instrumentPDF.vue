@@ -74,7 +74,7 @@ export default {
       curPageNum: 0,
     };
   },
-  activated() {
+  created() {
 
     this.url = "/convey.pdf"; //维修
     
