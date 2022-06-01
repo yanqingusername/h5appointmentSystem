@@ -38,10 +38,10 @@
             </template>
           </van-popover>
         </div>
-        <!-- <div class="s_center">
-          <div class="s_center_t">全部日期</div>
+        <div class="s_center" @click="clickDateTime">
+          <div class="s_center_t">{{currentDateText ? currentDateText : '全部日期'}}</div>
           <i class="el-icon-caret-bottom"></i>
-        </div> -->
+        </div>
         <div class="s_center_view" @click="cliclDate">
           <div class="s_center_t">{{sort_status == 0 ? '时间正序' : '时间倒序'}}</div>
           <i class="el-icon-caret-bottom" size="16"></i>
@@ -76,6 +76,11 @@
           </div>
         </div>
       </div>
+
+      <div class="view_selects">
+        <div class="s_select_t_r_i_default" @click="clickClose">清空筛选条件</div>
+      </div>
+
 
       <div class="dis_setting">
         <div class="s_center_t">筛选后合计数据：{{instrumentList.length}}条</div>
@@ -198,6 +203,20 @@
     </div>
     </van-dialog>
 
+
+
+    <van-popup v-model="isShowDateTime" round position="bottom">
+     
+     <van-datetime-picker
+  v-model="currentDate"
+  type="date"
+  title="选择年月日"
+  @cancel="dateTimeCancel" 
+  @confirm="dateTimeConfirm"
+/>
+    </van-popup>
+
+
   </div>
 </template>
 
@@ -215,6 +234,9 @@ export default {
   },
   data() {
     return {
+      isShowDateTime: false,
+      currentDate: new Date(),
+      currentDateText:'',
       service_type:'',
       service_type_text:"全部上门类型",
       expect_date:'',
@@ -279,6 +301,24 @@ export default {
     this.initMap();
   },
   methods: {
+    clickClose(){
+
+      this.currentDateText = '';
+      this.service_type =  '';
+      this.service_type_text = "全部上门类型";
+      this.sort_status = "0"
+      this.dataIndex = 0;
+      this.dataText = '全部';
+      this.dataValue = '';
+      this.statusIndex =  0;
+      this.statusText = '全部';
+      this.statusValue =  '';
+
+      this.page = 1;
+      this.instrumentList = [];
+      this.getAllVIPRecords();
+
+    },
     initMap() {
       let that = this;
       // var geolocation = new qq.maps.Geolocation(
@@ -475,7 +515,7 @@ export default {
         page: that.page,
         limit: that.limit,
         service_type: that.service_type,
-        expect_date: that.expect_date,
+        expect_date: that.currentDateText,
         nurse_name_list: that.dataValue,
         appointment_vip_status: that.statusValue,
         sort_status: that.sort_status
@@ -656,7 +696,32 @@ export default {
         Toast('复制成功')
         // 复制成功后再将构造的标签 移除
         document.body.removeChild(cInput);
-    }
+    },
+    clickDateTime(){
+      this.isShowDateTime = true;
+    },
+    dateTimeCancel(){
+      this.isShowDateTime = false;
+    },
+    dateTimeConfirm(){
+      this.currentDateText = this.timeFormat1(this.currentDate);
+      console.log(this.currentDateText)
+      this.isShowDateTime = false;
+
+      this.page = 1;
+      this.instrumentList = [];
+      this.getAllVIPRecords();
+    },
+    timeFormat1(time) { // 时间格式化 2019-09-08
+     let year = time.getFullYear();
+     let month = time.getMonth() + 1;
+      if(month<10){
+        month = '0'+month;
+      }
+     let day = time.getDate();
+
+    return year + '年' + month + '月' + day + '日';
+     }
   },
 };
 </script>
@@ -1012,5 +1077,27 @@ export default {
 
 .s_setting_t_item{
   font-size: 32px;
+}
+
+.view_selects{
+  font-size: 32px;
+  padding: 0px 56px 20px 56px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.s_select_t_r_i_default{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #E06596;
+  font-size: 26px;
+  padding: 10px 0px;
+  width: 240px;
+  color: #E06596;
+  margin-right: 20px;
 }
 </style>

@@ -29,7 +29,7 @@
           />
         </div>
         <!-- <div class="submit_view" @click="commit">登录</div> -->
-        <van-button class="submit_view" block type="info" @click="handleLogin">登录</van-button>
+        <van-button class="submit_view" block type="info" @click="commit">登录</van-button>
       </div>
     </div>
 
@@ -62,7 +62,7 @@ export default {
   created() {},
   mounted() {
     // this.isWechat();
-    // this.getAutoLogin();
+    this.getAutoLogin();
   },
   methods: {
     isWechat() {
@@ -151,17 +151,17 @@ export default {
       //   return;
       } else {
         getLogin({
-          phone: this.phone,
+          person_phone: this.phone,
           password: this.code
         }).then((res) => {
           console.log(res)
           if (res.data.success) {
             Toast(res.data.msg)
-            localStorage.setItem('conveyPhone',this.phone);
+            localStorage.setItem('vipPhone',this.phone);
             localStorage.setItem('conveyPassword',this.code)
             this.$router.push({
                 path: "/vipList",
-                query:{id: res.data.roleId,name: res.data.name,userId: res.data.userId}
+                query:{id: res.data.result[0].role,name: res.data.result[0].person_name,userId: res.data.result[0].id}
             });
           } else {
             Toast(res.data.msg)
@@ -176,24 +176,26 @@ export default {
       });
     },
     getAutoLogin(){
-      let phone = localStorage.getItem('conveyPhone');
-      let password = localStorage.getItem('conveyPassword');
-      if(phone && password){
-        this.phone = phone;
-        this.code = password;
+      let phone = localStorage.getItem('vipPhone');
+      // let password = localStorage.getItem('conveyPassword');
+      if(phone){
+        // this.phone = phone;
+        // this.code = password;
         getAutoLogin({
-          phone: phone,
-          password: password
+         person_phone: phone,
+          // password: password
         }).then((res) => {
           console.log(res)
           if (res.data.success) {
-            this.phone = '';
-            this.code = '';
-            Toast(res.data.msg)
-            this.$router.push({
-                path: "/vipList",
-                query:{id: res.data.roleId,name: res.data.name,userId: res.data.userId}
-            });
+            // this.phone = '';
+            // this.code = '';
+            if(res.data.is_auto_login == 0){
+              Toast(res.data.msg)
+              this.$router.push({
+                  path: "/vipList",
+                  query:{id: res.data.result[0].role,name: res.data.result[0].person_name,userId: res.data.result[0].id}
+              });
+            }
           } else {
             Toast(res.data.msg)
           }

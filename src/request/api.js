@@ -8,6 +8,12 @@ import requestH5Other from './requestH5Other'
 
 export const udateH5Images = val => requestH5Imgs('', val, 'post');
 
+
+
+export const getLogin = val => requestH5Other('/vipback/viplogin.hn', val, 'get'); //vip后台登陆
+
+export const getAutoLogin = val => requestH5Other('/vipback/checkAutoLogin.hn', val, 'get'); //vip后台自动登录
+
 export const getAllVIPRecords = val => requestH5Other('/vipback/getAllVIPAppointmentRecords.hn', val, 'get'); //vip后台获取预约记录
 
 export const updatePersonNum = val => requestH5Other('/vipback/updateAppointmentPersonNum.hn', val, 'get'); //vip上门预约修改配置
