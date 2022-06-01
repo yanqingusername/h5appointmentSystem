@@ -8,7 +8,7 @@
     />
     <div class="main">
       <div class="search-list-role">
-        <div class="dis_setting_i">
+        <div class="dis_setting_i" v-if="can_update==0">
           <div class="s_center_t_item">修改状态</div>
           <van-popover
             v-model="showPopover"
@@ -24,6 +24,13 @@
               </div>
             </template>
           </van-popover>
+        </div>
+        <div class="dis_setting_i" v-else>
+          <div class="s_center_t_item">修改状态</div>
+              <div class="s_setting_t_item">
+                <span style="color: #ec1f2d">{{ statustext }}</span>
+                <van-icon name="arrow" />
+              </div>
         </div>
       </div>
 
@@ -379,7 +386,8 @@ export default {
       currentDate: new Date(),
       timeValue: '',
       isShowUpdate: false,
-      checkinfo: ''
+      checkinfo: '',
+      can_update: '0', // 判断是否可以修改状态
     };
   },
   created() {
@@ -446,9 +454,12 @@ export default {
     getVIPInfoByNum(){
       let that = this;
       getVIPInfoByNum({
+        id: that.roleId,
         appointment_vip_num: that.appointment_vip_num
       }).then((res) => {
         if (res.data.success) {
+          that.can_update = res.data.can_update;
+
           let result = res.data.result
           if(result && result.length > 0){
             let item = result[0];

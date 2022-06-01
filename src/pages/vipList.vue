@@ -125,7 +125,7 @@
               </div>
               <div class="search-result-view-item" v-if="item.customer_url">
                 <div class="search-result-view-left">客户录入</div>
-                <div class="search-result-view-right" @click="copyUrl(item.customer_url,item.appointment_vip_num)">请客户点击下面链接<span style="text-decoration-line: underline;color:blue">{{item.customer_url}}{{'?avipnum='}}{{item.appointment_vip_num}}</span>，填写预约信息。</div>
+                <div class="search-result-view-right" @click="copyUrl('https://scldev.coyotebio-lab.com:8443/vue1/#/vipInfoCustom',item.appointment_vip_num)">请客户点击下面链接<span style="text-decoration-line: underline;color:blue">{{'https://scldev.coyotebio-lab.com:8443/vue1/#/vipInfoCustom?avipnum='}}{{item.appointment_vip_num}}</span>，填写预约信息。</div>
               </div>
               <div class="search-result-view-item" v-if="item.inspection_person_num">
                 <div class="search-result-view-left">受检人数</div>
@@ -914,6 +914,7 @@ export default {
 .search-result-view-right{
   width: 75%;
   font-size: 30px;
+  word-break: break-all;
 }
 
 .pic-img-view{
