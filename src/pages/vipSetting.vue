@@ -75,6 +75,7 @@ export default {
       }).then((res) => {
         if (res.data.success) {
           Toast(res.data.msg)
+          that.onClickLeft();
         } else {
           Toast(res.data.msg)
         }

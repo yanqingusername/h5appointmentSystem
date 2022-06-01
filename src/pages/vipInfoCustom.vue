@@ -2,10 +2,10 @@
   <div class="child-section">
     <van-nav-bar
       title="填写预约信息"
-      left-text="返回"
-      left-arrow
-      @click-left="onClickLeft"
     />
+    <!-- left-text="返回"
+      left-arrow
+      @click-left="onClickLeft" -->
     <div class="main" v-if="isShowResult == 1">
 
       <div class="dis_setting_icon_d">
@@ -459,6 +459,16 @@ export default {
         done() //关闭
       }
     },
+    checkPhone(phone) {
+      var phoneReg = /^1\d{10}$/;
+      if (phone.length != 11) {
+        return false;
+      } else if (!phoneReg.test(phone)) {
+        return false;
+      } else {
+        return true;
+      }
+    },
     /**
      * 保存
      */
@@ -474,6 +484,11 @@ export default {
         Toast('请输入联系人手机号');
         return;
       }
+
+      if (!that.checkPhone(that.vip_phone)) {
+        Toast('手机号有误')
+        return;
+      } 
 
       if(that.provincecityarea == ''){
         Toast('请选择所在地区');
@@ -595,7 +610,7 @@ export default {
   padding: 80px 50px 20px 50px;
 }
 .s_center_t {
-  font-size: 20px;
+  font-size: 28px;
 }
 
 .dis_setting_i {

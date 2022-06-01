@@ -114,7 +114,7 @@
               </div>
               <div class="search-result-view-item" v-if="item.address" style="positon:relative;">
                 <div class="search-result-view-left">上门地址</div>
-                <div class="search-result-view-right" style="width: 63%;" @click="copyAddress(item.vip_phone)">{{item.province}}{{item.city}}{{item.area}}{{item.address}}</div>
+                <div class="search-result-view-right" style="width: 63%;" @click="copyAddress(item.province,item.city,item.area,item.address)">{{item.province}}{{item.city}}{{item.area}}{{item.address}}</div>
                 <div class="pic-img-view" @click="markOnAMAP(item)">
                   <img class="pic-img-icon" src="../assets/images/icon_position_red.png" alt="" />
                 </div>
@@ -669,10 +669,10 @@ export default {
         // 复制成功后再将构造的标签 移除
         document.body.removeChild(cInput);
     },
-    copyAddress(item){
+    copyAddress(province,city,area,address){
         // 模拟 输入框
         var cInput = document.createElement("input");
-        cInput.value = item;
+        cInput.value = province+city+area+address+"";
         document.body.appendChild(cInput);
         cInput.select(); // 选取文本框内容
         // 执行浏览器复制命令
@@ -719,6 +719,9 @@ export default {
         month = '0'+month;
       }
      let day = time.getDate();
+      if(day<10){
+        day = '0'+day;
+      }
 
     return year + '年' + month + '月' + day + '日';
      }

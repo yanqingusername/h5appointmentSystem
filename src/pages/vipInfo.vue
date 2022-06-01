@@ -454,7 +454,7 @@ export default {
     getVIPInfoByNum(){
       let that = this;
       getVIPInfoByNum({
-        id: that.roleId,
+        id: that.userId,
         appointment_vip_num: that.appointment_vip_num
       }).then((res) => {
         if (res.data.success) {
@@ -537,6 +537,16 @@ export default {
     onClickLeft() {
       this.$router.back();
     },
+    checkPhone(phone) {
+      var phoneReg = /^1\d{10}$/;
+      if (phone.length != 11) {
+        return false;
+      } else if (!phoneReg.test(phone)) {
+        return false;
+      } else {
+        return true;
+      }
+    },
     /**
      * 保存
      */
@@ -562,6 +572,11 @@ export default {
         Toast('请输入联系人手机号');
         return;
       }
+
+      if (!that.checkPhone(that.vip_phone)) {
+        Toast('手机号有误')
+        return;
+      } 
 
       if(that.provincecityarea == ''){
         Toast('请选择所在地区');

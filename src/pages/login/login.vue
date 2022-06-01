@@ -25,8 +25,8 @@
             type="password"
             name="code"
             placeholder="请输入密码"
-            :oninput="code = (code.length > 6 ? code.slice(0, 6) : code)"
           />
+          <!-- :oninput="code = (code.length > 6 ? code.slice(0, 6) : code)" -->
         </div>
         <!-- <div class="submit_view" @click="commit">登录</div> -->
         <van-button class="submit_view" block type="info" @click="commit">登录</van-button>
@@ -132,6 +132,10 @@ export default {
       } else if (!this.checkPhone(this.phone)) {
         Toast('手机号有误')
           // Notify({ type: 'danger', message: '手机号有误'});
+        return;
+      } else if (this.code == "") {
+        Toast('请填写密码')
+          // Notify({ type: 'danger', message: '请填写验证码'});
         return;
       // } else if (this.code == "") {
       //   Toast('请填写验证码')
