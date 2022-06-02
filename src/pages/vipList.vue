@@ -78,6 +78,16 @@
       </div>
 
       <div class="view_selects">
+        <div class="select-item input-item">
+              <input
+                v-model="vipPhoneNumber"
+                type="text"
+                name="vipPhoneNumber"
+                placeholder="搜索手机号"
+                :onkeyup="vipPhoneNumber=vipPhoneNumber.replace(/[^\w\.\/]/ig,'')"
+              />
+              <img src="../assets/images/icon_search.png"  class="searchBtn" @click="clickSearch"/>
+            </div>
         <div class="s_select_t_r_i_default" @click="clickClose">清空筛选条件</div>
       </div>
 
@@ -87,7 +97,7 @@
         <div class="s_setting_t" style="color:#E06596;" @click="handleSetting"><van-icon name="setting-o" size="24" style="margin-right:4px;color:#E06596;"/>修改配置</div>
       </div>
 
-       <div class="search-list-role">
+       <div class="search-list-role" v-if="instrumentList.length>0">
           <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
           <van-list
           v-model="loading"
@@ -148,9 +158,13 @@
                   <div class="s_setting_t_item" v-if="item.appointment_vip_status == 5" >{{'已删除'}}</div>
                 </div>
                 <div class="s_setting_t_item" style="display:flex;">
-                  <div class="s_center_t_r_i" style="margin-right:0px;" v-if="item.appointment_vip_status == 0 || item.appointment_vip_status == 1 || item.appointment_vip_status == 2" @click="clickVipInfo(item,index)">修改</div>
+                  <!-- <div class="s_center_t_r_i" v-if="item.appointment_vip_status == 0 || item.appointment_vip_status == 1 || item.appointment_vip_status == 2" @click="clickVipInfo(item,index)">修改</div>
+                  <div class="s_center_t_r_i" v-if="item.appointment_vip_status == -1" @click="clickVipInfo(item,index)">后台录入</div> -->
+                  
                   <div class="s_center_t_r_i" v-if="item.appointment_vip_status == -1" @click="clickVipInfo(item,index)">后台录入</div>
-                  <div class="s_center_t_r_i" style="margin-right:0px;" v-if="item.appointment_vip_status == -1" @click="clickDelete(item,index)">删除</div>
+                  <div class="s_center_t_r_i" v-else @click="clickVipInfo(item,index)">修改</div>
+
+                  <div class="s_center_t_r_i" style="margin-right:0px;" @click="clickDelete(item,index)">删除</div>
                 </div>
               </div>
             </div>
@@ -159,6 +173,10 @@
 </van-pull-refresh>
           
       </div>
+      <div class="search-list-role" style="background:#FFFFFF;" v-else>
+        <div class="s_center_t_empty"><img src="../assets/images/nodata.png"  class="s_center_t_empty_img"/>暂无数据</div>
+      </div>
+
       <div class="empty_view"></div>
       
 
@@ -234,6 +252,7 @@ export default {
   },
   data() {
     return {
+      vipPhoneNumber:"",
       isShowDateTime: false,
       currentDate: new Date(),
       currentDateText:'',
@@ -313,6 +332,7 @@ export default {
       this.statusIndex =  0;
       this.statusText = '全部';
       this.statusValue =  '';
+      this.vipPhoneNumber = '';
 
       this.page = 1;
       this.instrumentList = [];
@@ -516,9 +536,10 @@ export default {
         limit: that.limit,
         service_type: that.service_type,
         expect_date: that.currentDateText,
-        nurse_name_list: that.dataValue,
+        nurse_name_ids: that.dataValue,
         appointment_vip_status: that.statusValue,
-        sort_status: that.sort_status
+        sort_status: that.sort_status,
+        vip_phone: that.vipPhoneNumber
       }).then((res) => {
         if (res.data.success) {
           let instrumentList = that.instrumentList;
@@ -559,6 +580,7 @@ export default {
       if(action === 'confirm') {
         createVIPFiveRecord({}).then((res) => {
           if (res.data.success) {
+            Toast(res.data.msg)
             that.isShowVip = false;
             that.page = 1;
             that.instrumentList = [];
@@ -579,6 +601,7 @@ export default {
       if(action === 'confirm') {
         createVIPGroupRecord({}).then((res) => {
           if (res.data.success) {
+            Toast(res.data.msg)
             that.isShowTeam = false;
             that.page = 1;
             that.instrumentList = [];
@@ -724,7 +747,12 @@ export default {
       }
 
     return year + '年' + month + '月' + day + '日';
-     }
+     },
+    clickSearch(){
+      this.page = 1;
+      this.instrumentList = [];
+      this.getAllVIPRecords();
+    }
   },
 };
 </script>
@@ -855,7 +883,7 @@ export default {
   background: #E06596;
   border-radius: 30px;
   border: 1px solid #E06596;
-  font-size: 34px;
+  font-size: 30px;
   color: #FFFFFF;
 }
 
@@ -868,7 +896,7 @@ export default {
   background: #E06596;
   border-radius: 30px;
   border: 1px solid #E06596;
-  font-size: 34px;
+  font-size: 30px;
   color: #FFFFFF;
 }
 
@@ -1089,6 +1117,41 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
+
+    .input-item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+
+      input {
+        width: 400px;
+         height: 60px;
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #DDDDDD;
+        outline: none;
+        font-size: 28px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        padding-left: 20px;
+      }
+
+      .searchBtn {
+        width: 60px;
+        height: 60px;
+        position:absolute;
+        padding: 10px;
+        right: 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #E06596;
+      }
+    }
 }
 
 .s_select_t_r_i_default{
@@ -1100,8 +1163,23 @@ export default {
   border: 1px solid #E06596;
   font-size: 26px;
   padding: 10px 0px;
-  width: 240px;
+  height: 60px;
+  width: 200px;
   color: #E06596;
-  margin-right: 20px;
+  margin-right: 0px;
+}
+
+.s_center_t_empty{
+  display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 80px;
+    font-size: 32px;
+}
+.s_center_t_empty_img{
+  width: 306px;
+  height: 200px;
+  margin-bottom: 30px;
 }
 </style>

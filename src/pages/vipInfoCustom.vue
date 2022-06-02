@@ -106,7 +106,7 @@
               input-width="40"
               theme="round"
               button-size="30"
-              max="5"
+              max="10"
             />
           </div>
         </div>
@@ -200,7 +200,7 @@
     <div class="dialog_item">
         <div class="dialog_item_text">免责说明</div>
         <div class="dialog_item_title">
-          <img class="dialog_item_img" src="../assets/images/disclaimer_img.png" />
+          <img class="dialog_item_img" :src="disclaimer_img" />
         </div>
     </div>
     </van-dialog>

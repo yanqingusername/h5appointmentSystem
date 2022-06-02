@@ -197,7 +197,7 @@
               input-width="40"
               theme="round"
               button-size="30"
-              min="100"
+              min="20"
             />
           </div>
         </div>
@@ -286,7 +286,7 @@ export default {
       roleName: "",
       userId: "",
       appointment_vip_num:'',
-      inspection_person_num: 100,
+      inspection_person_num: 20,
       remark: "",
       vip_person: "",
       vip_phone: "",
@@ -319,6 +319,7 @@ export default {
       ],
       isShowCheckbox: false,
       result: [],
+      moreResult: [],
       resultCheckbox: "",
       nurse_list:[],
       isShowArea: false,
@@ -483,6 +484,18 @@ export default {
              that.service_type = item.service_type;
              that.service_status = item.service_status;
              that.address = item.address;
+
+             if(that.nurse_name_ids){
+               let nurseIds = that.nurse_name_ids.split(',');
+               if(nurseIds && nurseIds.length > 0){
+                 for(let i = 0; i < nurseIds.length; i++){
+                   let id = parseInt(nurseIds[i])
+                    that.result.push(id);
+                    that.moreResult.push(id);
+                 }
+               }
+              //  console.log(that.nurse_name_ids,that.result)
+             }
 
              if(item.special_expect_date){
                 that.special_expect_date = item.special_expect_date;
@@ -697,6 +710,7 @@ export default {
     },
     clickHushi(){
       this.isShowCheckbox = true;
+      this.result = this.moreResult;
     },
     beforeCloseCheckbox(action, done) {
       let that = this;
@@ -715,6 +729,7 @@ export default {
                 }
               }
             }
+            that.moreResult = that.result;
 
           resultCheckbox= resultText.join(",");
           that.nurse_name_ids = that.result.join(",");
@@ -789,6 +804,10 @@ export default {
         month = '0'+month;
       }
      let day = time.getDate();
+    if(day<10){
+        day = '0'+day;
+      }
+
      let hour = time.getHours();
 
      this.special_expect_date = month + '月' + day + '日';
@@ -884,7 +903,7 @@ export default {
     font-size: 28px;
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
-    color: #333333;
+    color: #333333 !important;
     padding-left: 20px;
   }
 
