@@ -10,7 +10,7 @@
 
       
       <div class="dis_setting">
-        <div class="s_center_t">VIP上门（5人以下）</div>
+        <div class="s_center_t">VIP上门（10人以下）</div>
       </div>
 
       <div class="search-list-role">
@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { updatePersonNum } from "../request/api";
+import { updatePersonNum,getAppointmentPersonNum } from "../request/api";
 import { Toast } from "vant";
 export default {
   name: "",
@@ -59,6 +59,8 @@ export default {
     console.log(this.roleId)
     console.log(this.roleName)
     console.log(this.userId)
+
+    this.getAppointmentPersonNum();
    
   },
   mounted() {
@@ -76,6 +78,18 @@ export default {
         if (res.data.success) {
           Toast(res.data.msg)
           that.onClickLeft();
+        } else {
+          Toast(res.data.msg)
+        }
+      });
+    },
+    getAppointmentPersonNum(){
+      let that = this;
+      getAppointmentPersonNum({
+        service_type: "0"
+      }).then((res) => {
+        if (res.data.success) {
+            this.appointment_person_num = res.data.result[0].appointment_count_num;
         } else {
           Toast(res.data.msg)
         }

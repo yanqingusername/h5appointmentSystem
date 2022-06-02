@@ -515,12 +515,12 @@ export default {
                 that.provincecityarea = that.province + that.city + that.area + '';
              }
 
-             if(that.expect_date && that.expect_time_bucket){
-               that.dateText = that.expect_date + ' ' + that.expect_time_bucket;
-             }
-
              if(that.special_expect_date && that.special_expect_time_bucket){
                that.timeValue = that.special_expect_date + ' ' + that.special_expect_time_bucket;
+             }else{
+               if(that.expect_date && that.expect_time_bucket){
+                that.dateText = that.expect_date + ' ' + that.expect_time_bucket;
+              }
              }
 
              
@@ -601,8 +601,8 @@ export default {
         return;
       }
 
-      if(that.dateText == ''){
-        Toast('请选择期望上门时间');
+      if(that.dateText == '' && that.timeValue == ''){
+        Toast('请选择期望上门时间/特殊时间');
         return;
       }
 
@@ -784,6 +784,12 @@ export default {
         this.expect_date = date[0];
         this.expect_time_bucket = date[1];
         this.isShowDate = false;
+
+        if(this.timeValue && this.special_expect_date && this.special_expect_time_bucket){
+          this.dateText = '';
+          this.expect_date = '';
+          this.expect_time_bucket = '';
+        }
       }
     },
     clickDateTime(){
@@ -795,6 +801,11 @@ export default {
     dateTimeConfirm(){
       this.timeValue = this.timeFormat(this.currentDate);
       console.log(this.timeValue)
+
+      this.dateText = '';
+      this.expect_date = '';
+      this.expect_time_bucket = '';
+
       this.isShowDateTime = false;
     },
     timeFormat(time) { // 时间格式化 2019-09-08

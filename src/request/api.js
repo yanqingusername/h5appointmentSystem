@@ -38,6 +38,8 @@ export const createCustomerAddressInfo = val => requestH5Other('/vipback/createC
 export const getVIPServiceType = val => requestH5Other('/avip/getVIPServiceType.hn', val, 'get'); //
 
 
+export const getAppointmentPersonNum = val => requestH5Other('/vipback/getAppointmentPersonNum.hn', val, 'get'); 
+
 
 
 

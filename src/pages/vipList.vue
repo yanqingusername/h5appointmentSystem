@@ -109,8 +109,9 @@
             v-for="(item, index) in instrumentList"
             :key="index">
             <div class="search-result-view">
-              <div class="dis_setting" style="padding: 0px;">
-                <div class="s_center_t_item">{{ item.expect_date }} {{item.expect_time_bucket ? item.expect_time_bucket : '未选择预约时间'}}</div>
+              <div class="dis_setting" style="padding: 0px 0px 8px 0px;">
+                <div class="s_center_t_item" v-if="item.special_expect_date && item.special_expect_time_bucket">{{ item.special_expect_date }} {{item.special_expect_time_bucket}}</div>
+                <div class="s_center_t_item" v-else>{{ item.expect_date }} {{item.expect_time_bucket ? item.expect_time_bucket : '未选择预约时间'}}</div>
                 <!-- <div class="s_center_t_item" v-else>{{ '未选择预约时间' }}</div> -->
                 <div class="s_setting_t_item" style="color:#E06596;">{{item.nurse_name_list}}</div>
               </div>
@@ -133,7 +134,7 @@
                 <div class="search-result-view-left">检测类型</div>
                 <div class="search-result-view-right">{{item.service_title}}</div>
               </div>
-              <div class="search-result-view-item" v-if="item.customer_url">
+              <div class="search-result-view-item" v-if="item.customer_url && item.address == ''">
                 <div class="search-result-view-left">客户录入</div>
                 <div class="search-result-view-right" @click="copyUrl('https://scldev.coyotebio-lab.com:8443/vue1/#/vipInfoCustom',item.appointment_vip_num)">请客户点击下面链接<span style="text-decoration-line: underline;color:blue">{{'https://scldev.coyotebio-lab.com:8443/vue1/#/vipInfoCustom?avipnum='}}{{item.appointment_vip_num}}</span>，填写预约信息。</div>
               </div>
