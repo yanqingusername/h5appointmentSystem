@@ -119,7 +119,6 @@
                 type="text"
                 name="provincecityarea"
                 placeholder="请选择所在地区"
-                disabled="true"
               />
               <div class="clear_1" style="padding: 0px">
                 <van-icon name="arrow" />
@@ -420,7 +419,17 @@ export default {
             let objList = [];
             for (let i = 0; i < that.objectMultiArray.length; i++) {
               let obj = {};
-              obj.text =  that.objectMultiArray[i].date;
+
+              // obj.text =  that.objectMultiArray[i].date;
+              let dateText = that.objectMultiArray[i].date;
+              if(dateText.indexOf('年')!=-1){
+                let index = dateText.indexOf("date");
+                let result = dateText.substr(index + 1,dateText.length); 
+                obj.text =  result;
+              }else{
+                obj.text =  dateText;
+              }
+
               obj.children =  [];
               let item = that.objectMultiArray[i].time;
               for (let j = 0; j < item.length; j++) {
