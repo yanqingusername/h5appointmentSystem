@@ -90,7 +90,7 @@
           <div class="search-list-role-from-d">
             <div class="s_center_t_item">期望上门时间</div>
             <div class="s_setting_t_item" @click="clickDate">
-              <span>{{dateText ? dateText : '请选择期望上门时间'}}</span><van-icon name="arrow" />
+              <span :style="dateText ? 'color: #333333;':'color: #666666;'">{{dateText ? dateText : '请选择期望上门时间'}}</span><van-icon name="arrow" />
             </div>
           </div>
         </div>
