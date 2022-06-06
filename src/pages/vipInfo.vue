@@ -426,9 +426,12 @@ export default {
               for (let j = 0; j < item.length; j++) {
                 let timelist = item[j];
                 let objTime = {};
-                objTime.text = timelist.time_section;
+                
                 if(timelist.can_use == 1){
                   objTime.disabled = true;
+                  objTime.text = timelist.time_section + ' (已满约)';
+                }else{
+                  objTime.text = timelist.time_section;
                 }
                 obj.children.push(objTime)
               }
@@ -778,17 +781,29 @@ export default {
     dateConfirm(date){
       console.log(date)
       if(date.length>0){
-        let dateValue = '';
-          dateValue = date.join(" ");
-        this.dateText = dateValue;
-        this.expect_date = date[0];
-        this.expect_time_bucket = date[1];
-        this.isShowDate = false;
-
-        if(this.timeValue && this.special_expect_date && this.special_expect_time_bucket){
-          this.dateText = '';
+        let atime = date[1];
+        if(atime.indexOf('已满约') !=-1){
+          // let btime = atime.substr(0,(atime.indexOf('(')));
+          // console.log('--22-->:',btime)
+          Toast('该时间段已约满,请选择其他上门时间~');
+          let dateValue = '';
+          this.dateText = dateValue;
           this.expect_date = '';
           this.expect_time_bucket = '';
+          this.isShowDate = false;
+        }else{
+          let dateValue = '';
+          dateValue = date.join(" ");
+          this.dateText = dateValue;
+          this.expect_date = date[0];
+          this.expect_time_bucket = date[1];
+          this.isShowDate = false;
+
+          if(this.timeValue && this.special_expect_date && this.special_expect_time_bucket){
+            this.dateText = '';
+            this.expect_date = '';
+            this.expect_time_bucket = '';
+          }
         }
       }
     },
