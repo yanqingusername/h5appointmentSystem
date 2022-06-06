@@ -197,7 +197,7 @@
               input-width="40"
               theme="round"
               button-size="30"
-              min="20"
+              min="1"
             />
           </div>
         </div>
