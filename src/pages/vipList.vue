@@ -113,7 +113,7 @@
                 <div class="s_center_t_item" v-if="item.special_expect_date && item.special_expect_time_bucket">{{ item.special_expect_date }} {{item.special_expect_time_bucket}}</div>
                 <div class="s_center_t_item" v-else>{{ item.expect_date }} {{item.expect_time_bucket ? item.expect_time_bucket : '未选择预约时间'}}</div>
                 <!-- <div class="s_center_t_item" v-else>{{ '未选择预约时间' }}</div> -->
-                <div class="s_setting_t_item" style="color:#E06596;">{{item.nurse_name_list}}</div>
+                <div class="s_setting_t_item" style="color:#E06596;">{{item.nurse_name_list ? item.nurse_name_list : '未安排护士'}}</div>
               </div>
               <div class="search-result-view-item" v-if="item.vip_person">
                 <div class="search-result-view-left">联系人</div>
