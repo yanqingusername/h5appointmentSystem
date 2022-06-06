@@ -843,6 +843,9 @@ export default {
         day = '0'+day;
       }
      let hour = time.getHours();
+     if(hour<10){
+        hour = '0'+hour;
+      }
 
      this.special_expect_date = month + '月' + day + '日';
       this.special_expect_time_bucket = hour + ':00';
