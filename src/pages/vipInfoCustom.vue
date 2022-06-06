@@ -159,9 +159,9 @@
                 <div class="search-result-view-left">上门地址</div>
                 <div class="search-result-view-right" style="width: 70%;">{{item.province}}{{item.city}}{{item.area}}{{item.address}}</div>
               </div>
-              <div class="search-result-view-item" v-if="item.text">
+              <div class="search-result-view-item" v-if="item.service_title">
                 <div class="search-result-view-left">检测类型</div>
-                <div class="search-result-view-right">{{item.text}}</div>
+                <div class="search-result-view-right">{{item.service_title}}</div>
               </div>
               <div class="search-result-view-item" v-if="item.expect_date">
                 <div class="search-result-view-left">预约时间</div>
@@ -413,7 +413,7 @@ export default {
           let result = res.data.result
           if(result && result.length > 0){
             let item = result[0];
-            if(item.vip_person && item.vip_phone && item.text && item.province && item.city && item.address && item.expect_date && item.inspection_person_num){
+            if(item.vip_person && item.vip_phone && item.service_title && item.province && item.city && item.address && item.expect_date && item.inspection_person_num){
               that.isShowResult = 2;
               that.resultInfo.push(result[0]);
             }

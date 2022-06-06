@@ -555,6 +555,10 @@ export default {
           }
           
           that.instrumentList = instrumentList;
+
+          that.instrumentList.sort((a, b) => {
+            return a.appointment_vip_status == -1 ? -1 : 1;
+          });
         } else {
             Toast(res.data.msg)
         }
