@@ -113,13 +113,14 @@
           </div>
           <div class="search-list-role-from-c">
             <div class="s_center_t_item" style="width: 20%">所在地区</div>
-            <div class="select-item input-item" @click="clickArea">
-              <input
+            <div class="select-item div-item" @click="clickArea">
+              <!-- <input
                 v-model="provincecityarea"
                 type="text"
                 name="provincecityarea"
                 placeholder="请选择所在地区"
-              />
+              /> -->
+              <div :style="provincecityarea ? 'color: #333333;':'color: #666666;'">{{provincecityarea ? provincecityarea : '请选择所在地区'}}</div>
               <div class="clear_1" style="padding: 0px">
                 <van-icon name="arrow" />
               </div>
@@ -924,6 +925,18 @@ export default {
 .select-item {
   width: 80%;
 }
+
+.div-item{
+  padding: 20px 0px;
+    width: 77%;
+    display: flex;
+  // justify-content: center;
+  align-items: center;
+  position: relative;
+  font-size: 28px;
+  color: #333333;
+}
+
 .input-item {
   display: flex;
   justify-content: center;
