@@ -620,6 +620,7 @@ export default {
         that.setSaveData();
       } else {
         let param = {
+          appointment_vip_num: that.appointment_vip_num,
           nurse_name_ids: that.nurse_name_ids,
           expect_date: that.special_expect_date ?  that.special_expect_date : that.expect_date,
           expect_time_bucket: that.special_expect_time_bucket ? that.special_expect_time_bucket : that.expect_time_bucket,
